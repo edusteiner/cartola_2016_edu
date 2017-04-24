@@ -1,0 +1,21 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="refresh" content="600">
+
+    <style>img{ float: left; }</style>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+
+
+<script>
+
+                 $.getJSON('https://api.cartolafc.globo.com/time/fa-do-fred?v=1&key=dummykey&tag=test&offset=0&length=20&callback=?&minx=-30&miny=0&maxx=0&maxy=150', function(jsonp) {
+    alert(jsonp);
+});
+
+</script>

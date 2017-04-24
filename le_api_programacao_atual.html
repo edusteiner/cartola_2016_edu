@@ -1,0 +1,21 @@
+// http://eventos.tsuru.globotv.globoi.com/api/v2/transmissoes.json
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <script type="text/javascript" src="jquery-1.12.4.js"></script> 
+
+<script>
+
+    var myjson;
+    $.getJSON("http://eventos.tsuru.globotv.globoi.com/api/v2/transmissoes.json", function(json){
+        myjson = json;
+    });
+    console.log(myjson);
+
+</script>
+
+</head>
+

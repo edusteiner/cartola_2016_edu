@@ -1,0 +1,266 @@
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <meta http-equiv="refresh" content="600">
+
+    <style>img{ float: left; }</style>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-1.7.2.js"></script> 
+    <script type="text/javascript" src="jquery-latest.js"></script> 
+
+    <style type="text/css">
+
+
+        .maintable {
+            background-color: #FFFFFF;  /*#E5EECC;*/
+            border: 1px solid #C3C3C3;
+            color: #000000;
+            margin-left: 0;
+            vertical-align:center;
+        }
+
+        body, p, h1, h2, h3, h4, table, td, th, ul, ol, textarea, input {
+            font-family: verdana,helvetica,arial,sans-serif;
+             font-size: 12px;
+             vertical-align:center;
+        }
+
+
+
+
+
+    </style>
+
+
+
+
+
+
+        <script type="text/javascript">
+
+
+
+            function comDoisDigitos(x) {
+            var parts = x.toString();
+            if (parts.length==1){
+                parts = "0" + parts; // 1 casa decimal
+            };
+            return parts;
+            };
+
+
+
+
+
+
+        var objeto_exemplo = { 
+                                time : [{
+                                        time_id : 0,
+                                        time_nome : '',
+                                        time_nome_cartola : '',
+                                        time_url_escudo_svg : '',
+                                        time_ponto_acumulado : 0,
+
+                                        atleta : [{
+                                                        atleta_id : 0,
+                                                        atleta_posicao_id : 0,
+                                                        atleta_posicao_texto : '',
+                                                        atleta_clube_id : 0,
+                                                        atleta_foto : 0,
+                                                        atleta_pontos_num : 0,
+                                                        atleta_clube_abreviacao : '',
+                                                        atleta_clube_escudo : '',
+                                                        atleta_apelido : ''
+
+                                                    }]
+
+                                     }
+                               ]
+                            };
+
+            // -- nossa liga / resumo
+            // https://api.cartolafc.globo.com/auth/liga/warriors-champions-league
+            // 
+            // -- os times na rodada atual
+            // https://api.cartolafc.globo.com/time/o-fred-vai-te-pegarr       time_id = 86571
+            // https://api.cartolafc.globo.com/time/steiner-f-c                time_id = 
+            // https://api.cartolafc.globo.com/time/confraria-pao-liquido      time_id = 
+            // https://api.cartolafc.globo.com/time/fa-do-fred                 time_id = 
+            // https://api.cartolafc.globo.com/time/d-broncos-07               time_id = 
+            // https://api.cartolafc.globo.com/time/rubro-negro-de-madrid      time_id = 
+            // 
+            // -- atletas que estão pontuando
+            // https://api.cartolafc.globo.com/atletas/pontuados
+            // 
+            // -- pontos de cada time, rodada a rodada
+            // https://api.cartolafc.globo.com/auth/liga/warriors-champions-league?orderBy=turno
+
+            var liga = [];
+
+            // liga = [1,2,3];
+            liga.push('confraria-pao-liquido');
+            liga.push('d-broncos-07');
+            liga.push('fa-do-fred');
+            liga.push('steiner-f-c');
+            liga.push('o-fred-vai-te-pegarr'); 
+            liga.push('rubro-negro-de-madrid');
+
+            vetor_posicao = ['---', 'GOL', 'LAT', 'ZAG', 'MEI', 'ATA', 'TEC'];
+
+
+            
+            
+
+
+
+             for (conta_times=0; conta_times < liga.length; conta_times++) {
+                 a_pesquisar = "https://api.cartolafc.globo.com/time/"+liga[conta_times] ;
+
+                 $.ajax({ url: a_pesquisar, 
+                          async: false,
+                          cache: false,
+                          timeout: 30000,
+                          error: function(){
+                                             return true;
+                                 },
+                         dataType: 'json',
+             
+                         success: function(data){
+                             time_somatorio = 0;
+
+                             var atleta_temp = [];
+
+
+                             for (conta_atletas = 0; conta_atletas < data.atletas.length; conta_atletas ++) {
+
+                                atleta_temp.push({
+                                    atleta_posicao_id : data.atletas[conta_atletas].posicao_id ,
+                                    atleta_posicao_texto : vetor_posicao[data.atletas[conta_atletas].posicao_id],
+                                    atleta_clube_id : data.atletas[conta_atletas].clube_id,
+                                    atleta_foto : data.atletas[conta_atletas].foto ,
+                                    atleta_pontos_num : data.atletas[conta_atletas].pontos_num , 
+                                    atleta_clube_abreviacao : data.clubes[data.atletas[conta_atletas].clube_id].abreviacao ,
+                                    atleta_clube_escudo : data.clubes[data.atletas[conta_atletas].clube_id].escudos['30x30'] ,
+                                    atleta_apelido : data.atletas[conta_atletas].apelido
+
+                                });
+
+                                time_somatorio = time_somatorio + data.atletas[conta_atletas].pontos_num;
+
+                             };
+
+                            objeto_exemplo.time.push({
+                                time_id : data.time.time_id,
+                                time_nome : data.time.nome,
+                                time_nome_cartola : data.time.nome_cartola,
+                                time_url_escudo_svg : data.time.url_escudo_svg,
+                                time_ponto_acumulado : time_somatorio,
+                                atleta : atleta_temp
+                             });
+
+                             }
+                         })
+                 };
+
+                 console.log(objeto_exemplo);
+
+
+                 // descarrega array de times escalados para printar na tela 
+
+                 var output = [];
+                 
+
+                console.log(objeto_exemplo.time.length);
+
+                 for (conta_times2=1; conta_times2 < objeto_exemplo.time.length; conta_times2++) {
+                    output.push('<table border="1" width="16%" >');
+                    output.push('<tr><td colspan="4" align="left"><img width="32" height="31" src=', objeto_exemplo.time[conta_times2].time_url_escudo_svg, ' />  ', objeto_exemplo.time[conta_times2].time_nome, '</td></tr>');
+                    output.push('<tr><td colspan="4" align="left">',  objeto_exemplo.time[conta_times2].time_nome_cartola, '</td></tr>');
+
+
+                       var sort_by = function(field, reverse, primer){
+
+                       var key = primer ? 
+                           function(x) {return primer(x[field])} : 
+                           function(x) {return x[field]};
+
+                       reverse = !reverse ? 1 : -1;
+
+                       return function (a, b) {
+                           return a = key(a), b = key(b), reverse * ((a > b) - (b > a));
+                         } 
+                       };
+
+
+
+
+                    atletas_escalados = objeto_exemplo.time[conta_times2].atleta.sort(sort_by('atleta_posicao_id',false,parseInt));
+                    console.log(atletas_escalados);
+
+                    for (conta_atletas = 0; conta_atletas < objeto_exemplo.time[conta_times2].atleta.length; conta_atletas++) {
+                        <!-- output.push('<tr><td><img width="32" height="31" src=', objeto_exemplo.time[conta_times2].atleta[conta_atletas].atleta_foto, ' />  ', '</td></tr>'); -->
+                        output.push('<tr><td width="5%"> <img width="32" height="31" src=', 
+                                     objeto_exemplo.time[conta_times2].atleta[conta_atletas].atleta_clube_escudo, 
+                                     ' />  ',  
+                                     '</td><td width="5%"> ', objeto_exemplo.time[conta_times2].atleta[conta_atletas].atleta_posicao_texto ,
+                                     '</td><td width="20%"> ', objeto_exemplo.time[conta_times2].atleta[conta_atletas].atleta_apelido ,
+                                     '</td><td align="right"> ', comDoisDigitos(objeto_exemplo.time[conta_times2].atleta[conta_atletas].atleta_pontos_num) ,
+                            '</td></tr>');
+
+
+                <!--This is a comment. Comments are not displayed in the browser-->
+
+
+                    };
+
+
+
+                  
+                    output.push ('<tr><td colspan="4" align="right">', comDoisDigitos(objeto_exemplo.time[conta_times2].time_ponto_acumulado),'</td></tr>');
+                    output.push('</table>');
+                    output.push('<br><br><br><br><br><br>');
+
+                 };
+
+                //console.log(output);
+
+                var a = output.join('');
+                $('#dados').append(a);
+
+                console.log(a);
+
+
+
+
+</script>
+
+</head>
+
+
+
+
+
+
+<body>
+
+<table>
+ 
+    <td width="25%"> 
+
+        <div id="dados"> 
+            <script>
+            document.writeln (a);
+                </script>
+         </div>
+    </td>
+
+</table>             
+
+</body>
+
+
+</html>
